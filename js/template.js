@@ -112,4 +112,4 @@ function draw_lattice(start, width_units, length) {
             direction="left", length=length);
 }
 draw_lattice(start, 10, 20);
-console.log("sss")
+console.log("sss");
