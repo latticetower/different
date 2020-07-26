@@ -2,9 +2,21 @@
 <html>
 <head>
 <!-- Load the Paper.js library -->
-<script type="text/javascript" src="js/paper-full.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/acorn/5.1.1/acorn.js"></script>
+<script type="text/javascript" src="https://unpkg.com/paper@0.12.7/dist/paper-full.js"></script>
 <!-- Load external PaperScript and associate it with myCanvas -->
-<script type="text/paperscript" canvas="myCanvas"> <!-- src="js/template.js" -->
+<style>
+html,
+body {
+height: 100%;
+}
+canvas[resize] {
+width: 100%;
+height: 100%;
+}
+</style>
+
+<script type="text/paperscript" canvas="myCanvas">
 
 var height = 20;
 var width = 20;
@@ -52,7 +64,7 @@ function* get_points(start, lborder, rborder, direction="right", max_points=10) 
         steps = diff/width;
         console.log(direction, max_points, steps);
         if (steps >= max_points) {
-            console.log(direction, max_points);
+            //console.log(direction, max_points);
             for (let i = 0; i < max_points; i++) {
                 
                 yield start + [-width*i, height*i];
@@ -89,37 +101,40 @@ function make_diag_line(
     }
     //path.lineTo();
 }
-var path = new Path();
-// Give the stroke a color
-path.strokeColor = 'black';
-var start = new Point(100, 100);
-// Move to start and draw a line from there
-path.moveTo(start);
-// Note the plus operator on Point objects.
-// PaperScript does that for us, and much more!
-path.lineTo(start + [ 0, 10.5 ]);
+// var path = new Path();
+// // Give the stroke a color
+// path.strokeColor = 'black';
+// var start = new Point(100, 100);
+// // Move to start and draw a line from there
+// path.moveTo(start);
+// // Note the plus operator on Point objects.
+// // PaperScript does that for us, and much more!
+// path.lineTo(start + [ 0, 10.5 ]);
 //console.log(start + [ 0, 10.5 ]);
-function draw_lattice(start, width_units, length) {
+function* draw_lattice(start, width_units, length) {
     var left_point=start;
     var right_point = start+[width*2*width_units, 0];
-    make_simple_line(left_point, 10, type="simple", length=length);
-    make_simple_line(left_point+[width/2.0, 0], 10, type="simple", length=length);
-    make_simple_line(right_point, 10, type="simple", length=length);
-    make_simple_line(right_point+[-width/2.0, 0], 10, type="simple", length=length);
+    yield make_simple_line(left_point, 10, type="simple", length=length);
+    yield make_simple_line(left_point+[width/2.0, 0], 10, type="simple", length=length);
+    yield make_simple_line(right_point, 10, type="simple", length=length);
+    yield make_simple_line(right_point+[-width/2.0, 0], 10, type="simple", length=length);
     
     //make_diag_line(start, left_point, right_point);
     for (let i=1; i < width_units; i++){
-        make_diag_line(start + [i*2*width, 0], left_point, right_point,
+        yield make_diag_line(start + [i*2*width, 0], left_point, right_point,
             direction="right", length=length);
-        make_diag_line(start + [i*2*width, 0], left_point, right_point,
+        yield make_diag_line(start + [i*2*width, 0], left_point, right_point,
             direction="left", length=length);
     }
-    make_diag_line(start + [0*width, 0], left_point, right_point,
+    yield make_diag_line(start + [0*width, 0], left_point, right_point,
             direction="right", length=length);
-    make_diag_line(start + [width_units*2*width, 0], left_point, right_point,
+    yield make_diag_line(start + [width_units*2*width, 0], left_point, right_point,
             direction="left", length=length);
 }
-draw_lattice(start, 10, 20);
+
+var start = new Point(100, 100);
+var paths = [...draw_lattice(start, 10, 20)];
+
 console.log("sss");
 
 
